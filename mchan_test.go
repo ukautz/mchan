@@ -11,7 +11,7 @@ func TestChannels(t *testing.T) {
 	Convey("Drainging empty channel set stops", t, func() {
 		m := NewChannels()
 		c := 0
-		for range m.Drain() {
+		for _ = range m.Drain() {
 			c++
 		}
 		So(c, ShouldEqual, 0)
