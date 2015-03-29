@@ -107,34 +107,45 @@ func TestChannels(t *testing.T) {
 func ExampleChannels() {
 	// Merge multiple channels
 	ints := NewChannels()
-	i1 := make(chan int)
-	i2 := make(chan int)
-	i3 := make(chan int)
-	if err := ints.Add(i1, i2, i3); err != nil {
+	ci := make(chan int)
+	cs := make(chan string)
+	cx := make(chan struct{x int})
+	if err := ints.Add(ci, cs, cx); err != nil {
 		panic(err)
 	}
 
 	// Feed the channels
-	for idx, ch := range []chan int{i1, i2, i3} {
-		go func(c chan int, i int) {
-			defer close(c)
-			c <- i
-			c <- i + 10
-		}(ch, idx)
-	}
+	go func() {
+		defer close(ci)
+		for i := 0; i < 2; i++ {
+			ci <- i
+		}
+	}()
+	go func() {
+		defer close(cs)
+		for i := 0; i < 2; i++ {
+			cs <- fmt.Sprintf("Num %d", i)
+		}
+	}()
+	go func() {
+		defer close(cx)
+		for i := 0; i < 2; i++ {
+			cx <- struct{x int}{x: i}
+		}
+	}()
 
 	// Drain until all are closed
-	for i := range ints.Drain() {
-		fmt.Printf("Got %d\n", i)
+	for v := range ints.Drain() {
+		fmt.Printf("Got %v\n", v)
 	}
 
 	// Output (in random order):
 	// Got 0
+	// Got Num 0
+	// Got {0}
 	// Got 1
-	// Got 2
-	// Got 10
-	// Got 11
-	// Got 12
+	// Got Num 1
+	// Got {1}
 }
 
 func BenchmarkChannelsMerged(b *testing.B) {

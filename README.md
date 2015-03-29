@@ -17,8 +17,8 @@ Example
 // Merge multiple channels
 ints := NewChannels()
 i1 := make(chan int)
-i2 := make(chan int)
-i3 := make(chan int)
+i2 := make(chan string)
+i3 := make(chan struct{x int})
 if err := ints.Add(i1, i2, i3); err != nil {
     panic(err)
 }
